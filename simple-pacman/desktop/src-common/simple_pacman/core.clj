@@ -3,51 +3,41 @@
             [play-clj.g2d :refer :all]
             [play-clj.math :refer :all]))
 
+
+
+(declare simple-pacman-game main-screen)
+
+;|------------------assets ----------------------------|
 (def background-img "background.png")
 (def pacman-img "pac.png")
 (def dot-img "dot.png")
 
-
+;|----------------global size & speed ------------- |
 (def window-height 506)
 (def window-width 900)
 (def pac-size 60)
-(def c-size 20)                                   ;  collectable dots size : height & width
-
-(declare simple-pacman-game main-screen)
+(def dot-size 20)                                   ;  collectable dot size : height & width
 (def speed 15)
 
 
-(defn- get-collectable-y [line-num]
-  (+ pac-size (* line-num 180)))
+;|----------------- yellow dots rows ------------------|
 
-(defn- get-collectable-x [collectables-num]
-  (let [spaces (* pac-size (+ collectables-num 1))]
-    (+ spaces (* c-size collectables-num))))
-
-(defn- generate-collectable [ line-num collectables-num ]
-  "scatter collectables around the screen"
-  (let [x (get-collectable-x collectables-num)
-        y (get-collectable-y line-num)]
-    (assoc (texture (str dot-img)) :x x :y y :width c-size :height c-size :collectable? true)))
+(defn- generate-dot [ x y ]
+  "generate collectable dot"
+  (assoc (texture (str dot-img)) :x x :y y :width dot-size :height dot-size :collectable? true))
 
 
-(defn- generate-collectables-line [line-number  ]
-  (map #(generate-collectable line-number % ) (range 0 10)))
-
-(defn- generate-collectables-lines []
-  (map #(generate-collectables-line % ) (range 0 5)))
+(defn- generate-dots-row [y]
+  "generates dots in row y"
+  (map generate-dot (range 100 800 40) (repeat y)))
 
 
-;|-------------------- player input --------------------------|
+(defn- generate-collectables-rows []
+  "generates rows of collectables dots. "
+  (map generate-dots-row (range 80 450 80)))
 
+;|-------------------- handle player input --------------------------|
 
-(defn- get-new-angle [direction]
-  (let [new-angle (case direction
-                    :right 0
-                    :up 90
-                    :left 180
-                    :down 270)]
-    new-angle))
 
 (defn- get-direction []
   (cond
@@ -56,14 +46,22 @@
     (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
-;|--------------- player position & collecting -----------------|
+;|--------------- handle player position -----------------|
+
+(defn- get-angle [direction]
+  (let [new-angle (case direction
+                    :right 0
+                    :up 90
+                    :left 180
+                    :down 270)]
+    new-angle))
 
 (defn- get-new-x [direction entity ]
   (let [new-x (case direction
                 :right (+ (:x entity) speed)
                 :left (- (:x entity) speed)
                 (:x entity))]
-    (if (or (< new-x 0) (<= (- window-width pac-size) new-x))
+    (if (or (< new-x 0) (<= (- window-width pac-size) new-x)) ;apply screen x boundaries
       (:x entity)
       new-x)))
 
@@ -72,19 +70,24 @@
                 :up (+ (:y entity) speed)
                 :down (- (:y entity) speed)
                 (:y entity))]
-    (if (or (< new-y 0) (<= (- window-height pac-size) new-y))
+    (if (or (< new-y 0) (<= (- window-height pac-size) new-y)) ;apply screen y boundaries
       (:y entity)
       new-y)))
+
+
 
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
           x (get-new-x direction entity)
           y (get-new-y direction entity)
-          new-angle (get-new-angle direction)]
-      (assoc entity :x x :y y :angle new-angle :direction direction))
+          angle (get-angle direction)]
+      (assoc entity :x x :y y :angle angle :direction direction))
     entity))
 
+
+
+;|----------------------------- handle collectable dots ------------------------------|
 (defn- update-collected-list [{:keys [player? collectable?] :as entity}]
   (if (or player? collectable?)
     (assoc entity :hit-box (rectangle (:x entity) (:y entity) (:width entity) (:height entity)))
@@ -97,6 +100,10 @@
       (remove (set touched-collectables) entities))
     entities))
 
+
+
+;|---------------- move & collect ------------------ |
+
 (defn- move-and-collect [entities]
   (->> entities
        (map (fn [entity]
@@ -105,6 +112,8 @@
                    (update-collected-list))))
        (remove-collected-obj)))
 
+
+;----------------------- main screen ------------------------ |
 (defscreen main-screen
 
            :on-show
@@ -115,8 +124,7 @@
              (let [background (texture background-img)
                    player (assoc (texture pacman-img)
                             :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
-                   collectables (generate-collectables-lines)
-                   ]
+                   collectables (generate-collectables-rows)]
                [background player collectables]))
 
            :on-render
