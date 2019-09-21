@@ -3,34 +3,25 @@
             [play-clj.g2d :refer :all]
             [play-clj.math :refer :all]))
 
-
-
 (declare simple-pacman-game main-screen)
 
-;|------------------assets ----------------------------|
-(def background-img "background.png")
-(def pacman-img "pac.png")
-(def dot-img "dot.png")
-
-;|----------------global size & speed ------------- |
 (def window-height 506)
 (def window-width 900)
 (def pac-size 60)
-(def dot-size 20)                                   ;  collectable dot size : height & width
+(def dot-size 20)
 (def speed 15)
 
 
-;|----------------- yellow dots rows ------------------|
+;|-----------------  dots  ------------------|
 
 (defn- generate-dot [ x y ]
   "generate collectable dot"
-  (assoc (texture (str dot-img)) :x x :y y :width dot-size :height dot-size :dot? true))
+  (assoc (texture "dot.png") :x x :y y :width dot-size :height dot-size :dot? true))
 
 (defn- gen-dots []
   (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
 
-;|-------------------- handle player input --------------------------|
-
+;|-------------------- handle input --------------------------|
 
 (defn- get-direction []
   (cond
@@ -42,12 +33,11 @@
 ;|--------------- handle player position -----------------|
 
 (defn- get-angle [direction]
-  (let [new-angle (case direction
-                    :right 0
-                    :up 90
-                    :left 180
-                    :down 270)]
-    new-angle))
+  (case direction
+    :right 0
+    :up 90
+    :left 180
+    :down 270))
 
 (defn- get-new-x [direction entity ]
   (let [new-x (case direction
@@ -68,7 +58,6 @@
       new-y)))
 
 
-
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
@@ -79,8 +68,8 @@
     entity))
 
 
-
 ;|----------------------------- handle collectable dots ------------------------------|
+
 (defn- update-collected-list [{:keys [player? dot?] :as entity}]
   (if (or player? dot?)
     (assoc entity :hit-box (rectangle (:x entity) (:y entity) (:width entity) (:height entity)))
@@ -92,7 +81,6 @@
           touched-dots (filter #(rectangle! (:hit-box player) :overlaps (:hit-box %)) dots)]     ;use rectangle! because we already have a rectangle and we want to call a function on it
       (remove (set touched-dots) entities))
     entities))
-
 
 
 ;|---------------- move & collect ------------------ |
@@ -114,8 +102,8 @@
              (update! screen :renderer (stage))
 
 
-             (let [background (texture background-img)
-                   player (assoc (texture pacman-img)
+             (let [background (texture "background.png")
+                   player (assoc (texture "pac.png")
                             :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
                    dots (gen-dots)]
                [background player dots]))
@@ -135,6 +123,3 @@
          :on-create
          (fn [this]
            (set-screen! this main-screen)))
-
-
-
