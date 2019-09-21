@@ -24,17 +24,10 @@
 
 (defn- generate-dot [ x y ]
   "generate collectable dot"
-  (assoc (texture (str dot-img)) :x x :y y :width dot-size :height dot-size :collectable? true))
+  (assoc (texture (str dot-img)) :x x :y y :width dot-size :height dot-size :dot? true))
 
-
-(defn- generate-dots-row [y]
-  "generates dots in row y"
-  (map generate-dot (range 100 800 40) (repeat y)))
-
-
-(defn- generate-collectables-rows []
-  "generates rows of collectables dots. "
-  (map generate-dots-row (range 80 450 80)))
+(defn- gen-dots []
+  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
 
 ;|-------------------- handle player input --------------------------|
 
@@ -88,16 +81,16 @@
 
 
 ;|----------------------------- handle collectable dots ------------------------------|
-(defn- update-collected-list [{:keys [player? collectable?] :as entity}]
-  (if (or player? collectable?)
+(defn- update-collected-list [{:keys [player? dot?] :as entity}]
+  (if (or player? dot?)
     (assoc entity :hit-box (rectangle (:x entity) (:y entity) (:width entity) (:height entity)))
     entity))
 
-(defn- remove-collected-obj [entities]
-  (if-let [collectables (filter #(contains? % :collectable?) entities)]
-    (let [player  (some #(when (:player? %) %) entities)  ;some returns the first logical true!
-          touched-collectables (filter #(rectangle! (:hit-box player) :overlaps (:hit-box %)) collectables)]     ;use rectangle! because we already have a rectangle and we want to call a function on it
-      (remove (set touched-collectables) entities))
+(defn- remove-collected-dots [entities]
+  (if-let [dots (filter #(contains? % :dot?) entities)] ;get only dot entities
+    (let  [player  (some #(when (:player? %) %) entities)  ;some returns the first logical true!
+          touched-dots (filter #(rectangle! (:hit-box player) :overlaps (:hit-box %)) dots)]     ;use rectangle! because we already have a rectangle and we want to call a function on it
+      (remove (set touched-dots) entities))
     entities))
 
 
@@ -110,7 +103,7 @@
               (->> entity
                    (update-player-position)
                    (update-collected-list))))
-       (remove-collected-obj)))
+       (remove-collected-dots)))
 
 
 ;----------------------- main screen ------------------------ |
@@ -124,8 +117,8 @@
              (let [background (texture background-img)
                    player (assoc (texture pacman-img)
                             :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
-                   collectables (generate-collectables-rows)]
-               [background player collectables]))
+                   dots (gen-dots)]
+               [background player dots]))
 
            :on-render
            (fn [screen entities]
