@@ -3,9 +3,9 @@
             [play-clj.g2d :refer :all]
             [play-clj.math :refer :all]))
 
-(def background-img "ddd.png")
-(def pacman-img "pac1.png")
-(def dot-img "dot2.png")
+(def background-img "background.png")
+(def pacman-img "pac.png")
+(def dot-img "dot.png")
 
 
 (def window-height 506)
@@ -40,6 +40,15 @@
 
 ;|-------------------- player input --------------------------|
 
+
+(defn- get-new-angle [direction]
+  (let [new-angle (case direction
+                    :right 0
+                    :up 90
+                    :left 180
+                    :down 270)]
+    new-angle))
+
 (defn- get-direction []
   (cond
     (key-pressed? :dpad-up) :up
@@ -71,11 +80,9 @@
   (if player?
     (let [direction (get-direction)
           x (get-new-x direction entity)
-          y (get-new-y direction entity)]
-      (when (not= (:direction entity) direction)
-        (texture!
-          entity :flip true false))
-      (assoc entity :x x :y y :direction direction))
+          y (get-new-y direction entity)
+          new-angle (get-new-angle direction)]
+      (assoc entity :x x :y y :angle new-angle :direction direction))
     entity))
 
 (defn- update-collected-list [{:keys [player? collectable?] :as entity}]
@@ -107,7 +114,7 @@
 
              (let [background (texture background-img)
                    player (assoc (texture pacman-img)
-                            :x 40 :y 40 :width pac-size  :height pac-size :player? true :direction :right)
+                            :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
                    collectables (generate-collectables-lines)
                    ]
                [background player collectables]))
