@@ -7,7 +7,7 @@
 
 (def window-height 506)
 (def window-width 900)
-
+(def pac-size 60)
 (def speed 15)
 
 
@@ -19,15 +19,20 @@
 
 (defn- get-new-position [direction entity ]
   (case direction
-    :right (+ (:x entity) 15)
-    :left (- (:x entity) 15)))
+    :right (+ (:x entity) speed)
+    :left (- (:x entity) speed)))
 
+(defn- get-angle [direction]
+  (case direction
+    :right 0
+    :left 180))
 
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          x (get-new-position direction entity)]
-      (assoc entity :x x  :direction direction))
+          x (get-new-position direction entity)
+          angle (get-angle direction)]
+      (assoc entity :x x :angle angle :direction direction))
     entity))
 
 
@@ -41,8 +46,8 @@
 
              (let [background (texture "background.png")
                    player (assoc (texture "pac.png")
-                            :x 40 :y 40 :width 60  :height 60  :player? true :direction :right)]
-               [background player ]))
+                            :x 40 :y 40 :width pac-size  :height pac-size :angle 0 :player? true :direction :right)]
+               [background player]))
 
            :on-render
            (fn [screen entities]
