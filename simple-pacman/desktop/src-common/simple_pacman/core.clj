@@ -7,91 +7,28 @@
 
 (def window-height 506)
 (def window-width 900)
-(def pac-size 60)
-(def dot-size 20)
+
 (def speed 15)
 
 
-;|-----------------  dots  ------------------|
-
-(defn- generate-dot [ x y ]
-  "generate collectable dot"
-  (assoc (texture "dot.png") :x x :y y :width dot-size :height dot-size :dot? true))
-
-(defn- gen-dots []
-  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
-
-;|-------------------- handle input --------------------------|
-
 (defn- get-direction []
   (cond
-    (key-pressed? :dpad-up) :up
-    (key-pressed? :dpad-down) :down
     (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
-;|--------------- handle player position -----------------|
 
-(defn- get-angle [direction]
+(defn- get-new-position [direction entity ]
   (case direction
-    :right 0
-    :up 90
-    :left 180
-    :down 270))
-
-(defn- get-new-x [direction entity ]
-  (let [new-x (case direction
-                :right (+ (:x entity) speed)
-                :left (- (:x entity) speed)
-                (:x entity))]
-    (if (or (< new-x 0) (<= (- window-width pac-size) new-x)) ;apply screen x boundaries
-      (:x entity)
-      new-x)))
-
-(defn- get-new-y [direction entity ]
-  (let [new-y (case direction
-                :up (+ (:y entity) speed)
-                :down (- (:y entity) speed)
-                (:y entity))]
-    (if (or (< new-y 0) (<= (- window-height pac-size) new-y)) ;apply screen y boundaries
-      (:y entity)
-      new-y)))
+    :right (+ (:x entity) 15)
+    :left (- (:x entity) 15)))
 
 
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          x (get-new-x direction entity)
-          y (get-new-y direction entity)
-          angle (get-angle direction)]
-      (assoc entity :x x :y y :angle angle :direction direction))
+          x (get-new-position direction entity)]
+      (assoc entity :x x  :direction direction))
     entity))
-
-
-;|----------------------------- handle collectable dots ------------------------------|
-
-(defn- update-collected-list [{:keys [player? dot?] :as entity}]
-  (if (or player? dot?)
-    (assoc entity :hit-box (rectangle (:x entity) (:y entity) (:width entity) (:height entity)))
-    entity))
-
-(defn- remove-collected-dots [entities]
-  (if-let [dots (filter #(contains? % :dot?) entities)] ;get only dot entities
-    (let  [player  (some #(when (:player? %) %) entities)  ;some returns the first logical true!
-          touched-dots (filter #(rectangle! (:hit-box player) :overlaps (:hit-box %)) dots)]     ;use rectangle! because we already have a rectangle and we want to call a function on it
-      (remove (set touched-dots) entities))
-    entities))
-
-
-;|---------------- move & collect ------------------ |
-
-(defn- move-and-collect [entities]
-  (->> entities
-       (map (fn [entity]
-              (->> entity
-                   (update-player-position)
-                   (update-collected-list))))
-       (remove-collected-dots)))
 
 
 ;----------------------- main screen ------------------------ |
@@ -104,9 +41,8 @@
 
              (let [background (texture "background.png")
                    player (assoc (texture "pac.png")
-                            :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
-                   dots (gen-dots)]
-               [background player dots]))
+                            :x 40 :y 40 :width 60  :height 60  :player? true :direction :right)]
+               [background player ]))
 
            :on-render
            (fn [screen entities]
@@ -117,7 +53,7 @@
            (fn [screen entities]
              (cond
                (key-pressed? :r) (app! :post-runnable #(set-screen! simple-pacman-game main-screen))
-               (get-direction) (move-and-collect entities))))
+               (get-direction) (map update-player-position entities))))
 
 (defgame simple-pacman-game
          :on-create
