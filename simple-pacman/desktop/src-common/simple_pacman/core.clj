@@ -22,17 +22,14 @@
     :right (+ (:x entity) speed)
     :left (- (:x entity) speed)))
 
-(defn- get-angle [direction]
-  (case direction
-    :right 0
-    :left 180))
 
+
+;TODO update this function so that the pac-man icon will be updated each time the direction changes.
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          x (get-new-position direction entity)
-          angle (get-angle direction)]
-      (assoc entity :x x :angle angle :direction direction))
+          x (get-new-position direction entity)]
+      (assoc entity :x x :direction direction))
     entity))
 
 
@@ -43,7 +40,7 @@
            (fn [screen entities]
              (update! screen :renderer (stage))
 
-
+             ;TODO consider the 'angle' keyword. try to understand the values for each direction
              (let [background (texture "background.png")
                    player (assoc (texture "pac.png")
                             :player? true :x 40 :y 40 :width pac-size  :height pac-size :angle 0 :direction :right)]
