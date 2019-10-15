@@ -8,18 +8,8 @@
 (def window-height 506)
 (def window-width 900)
 (def pac-size 60)
-(def dot-size 20)
 (def speed 15)
 
-
-;|-----------------  dots  ------------------|
-
-(defn- generate-dot [ x y ]
-  "generate collectable dot"
-  (assoc (texture "dot.png") :x x :y y :width dot-size :height dot-size :dot? true))
-
-(defn- gen-dots []
-  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
 
 ;|-------------------- handle input --------------------------|
 
@@ -68,32 +58,6 @@
     entity))
 
 
-;|----------------------------- handle collectable dots ------------------------------|
-
-(defn- update-collected-list [{:keys [player? dot?] :as entity}]
-  (if (or player? dot?)
-    (assoc entity :hit-box (rectangle (:x entity) (:y entity) (:width entity) (:height entity)))
-    entity))
-
-(defn- remove-collected-dots [entities]
-  (if-let [dots (filter #(contains? % :dot?) entities)] ;get only dot entities
-    (let  [player  (some #(when (:player? %) %) entities)  ;some returns the first logical true!
-          touched-dots (filter #(rectangle! (:hit-box player) :overlaps (:hit-box %)) dots)]     ;use rectangle! because we already have a rectangle and we want to call a function on it
-      (remove (set touched-dots) entities))
-    entities))
-
-
-;|---------------- move & collect ------------------ |
-
-(defn- move-and-collect [entities]
-  (->> entities
-       (map (fn [entity]
-              (->> entity
-                   (update-player-position)
-                   (update-collected-list))))
-       (remove-collected-dots)))
-
-
 ;----------------------- main screen ------------------------ |
 (defscreen main-screen
 
@@ -104,9 +68,8 @@
 
              (let [background (texture "background.png")
                    player (assoc (texture "pac.png")
-                            :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
-                   dots (gen-dots)]
-               [background player dots]))
+                            :player? true :x 40 :y 40 :width pac-size :height pac-size :angle 0  :direction :right)]
+               [background player ]))
 
            :on-render
            (fn [screen entities]
@@ -117,7 +80,7 @@
            (fn [screen entities]
              (cond
                (key-pressed? :r) (app! :post-runnable #(set-screen! simple-pacman-game main-screen))
-               (get-direction) (move-and-collect entities))))
+               (get-direction) (map update-player-position entities))))
 
 (defgame simple-pacman-game
          :on-create
