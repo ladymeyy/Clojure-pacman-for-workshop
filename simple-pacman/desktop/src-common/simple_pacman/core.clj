@@ -11,17 +11,20 @@
 (def speed 15)
 
 
+;|-------------------- handle input --------------------------|
+
 (defn- get-direction []
   (cond
     (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
 
+;|--------------- handle player position -----------------|
+
 (defn- get-new-position [direction entity ]
   (case direction
     :right (+ (:x entity) speed)
     :left (- (:x entity) speed)))
-
 
 
 ;TODO update this function so that the pac-man icon will be updated each time the direction changes.
