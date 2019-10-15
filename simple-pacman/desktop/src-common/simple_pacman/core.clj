@@ -41,7 +41,7 @@
 
              (let [background (texture "background.png")
                    player (assoc (texture "pac.png")
-                            :x 40 :y 40 :width pac-size  :height pac-size  :player? true :direction :right)]
+                            :player? true :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :direction :right)]
                [background player ]))
 
            :on-render
