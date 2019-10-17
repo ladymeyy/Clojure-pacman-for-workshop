@@ -5,33 +5,31 @@
 
 (declare simple-pacman-game main-screen)
 
-(def window-height 506)
-(def window-width 900)
-(def pac-size 60)
-(def speed 15)
-
+;TODO: 1. GO TO LINE 42
+;      2. GO TO LINE 24
 
 ;|-------------------- handle input --------------------------|
-
 (defn- get-direction []
   (cond
     (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
-
 ;|--------------- handle player position -----------------|
-
 (defn- get-new-position [direction entity ]
   (case direction
-    :right (+ (:x entity) speed)
-    :left (- (:x entity) speed)))
+    :right (+ (:x entity) (:speed entity))
+    :left (- (:x entity) (:speed entity))))
 
 
+;TODO 2.
 ;TODO update this function so that the pac-man icon will be updated each time the direction changes.
+; Consider the way a NEW VALUE is calculated for the x variable.
+; Make sure the new value the is dependant on the direction.
+; Hint = use keywords to identify the direction, can you spot a function with this behaviour?
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          x (get-new-position direction entity)]
+          x (get-new-position direction entity )]
       (assoc entity :x x :direction direction))
     entity))
 
@@ -43,11 +41,13 @@
            (fn [screen entities]
              (update! screen :renderer (stage))
 
+             ;TODO 1.
              ;TODO consider the 'angle' keyword. try to understand the values for each direction
              (let [background (texture "background.png")
+                   player-size 60
                    player (assoc (texture "pac.png")
-                            :player? true :x 40 :y 40 :width pac-size  :height pac-size :angle 0 :direction :right)]
-               [background player]))
+                            :player? true :x 40 :y 40 :width player-size  :height player-size :angle 0  :direction :right :speed 15)]
+               [background player ]))
 
            :on-render
            (fn [screen entities]
