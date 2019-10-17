@@ -6,5 +6,5 @@
 
 (defn -main
   []
-  (LwjglApplication. simple-pacman-game "simple-pacman" window-width window-height)
+  (LwjglApplication. simple-pacman-game "simple-pacman" 900 506)
   (Keyboard/enableRepeatEvents true))
