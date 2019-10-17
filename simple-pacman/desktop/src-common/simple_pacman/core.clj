@@ -6,6 +6,26 @@
 (declare simple-pacman-game main-screen)
 
 
+;1. TODO: write the function (generate-dot x y) : which returns a dot entity
+; - dot image: "dot.png"
+; - make sure this function is a pure function (what could make it impure? )
+; - you may change the functions signature
+
+;2. TODO: dot-size should be one-third of the player size.
+
+;3. insert the dots to the entities of this game.
+
+
+
+;|-----------------  dots  ------------------|
+
+
+
+(defn- gen-dots [  ]
+  "This function generates entities of dots"
+  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
+
+
 ;|-------------------- handle input --------------------------|
 (defn- get-direction []
   (cond
