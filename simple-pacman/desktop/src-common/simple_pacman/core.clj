@@ -7,9 +7,9 @@
 
 (def window-height 506)
 (def window-width 900)
-(def pac-size 60)
-(def dot-size 20)
-(def speed 15)
+
+(def dot-size 20)                                           ; to do change to pac/3 size
+
 
 
 ;|-----------------  dots  ------------------|
@@ -40,20 +40,22 @@
     :down 270))
 
 (defn- get-new-x [direction entity ]
-  (let [new-x (case direction
+  (let [speed (:speed entity)
+        new-x (case direction
                 :right (+ (:x entity) speed)
                 :left (- (:x entity) speed)
                 (:x entity))]
-    (if (or (< new-x 0) (<= (- window-width pac-size) new-x)) ;apply screen x boundaries
+    (if (or (< new-x 0) (<= (- window-width (:width entity)) new-x)) ;apply screen x boundaries
       (:x entity)
       new-x)))
 
 (defn- get-new-y [direction entity ]
-  (let [new-y (case direction
+  (let [speed (:speed entity)
+        new-y (case direction
                 :up (+ (:y entity) speed)
                 :down (- (:y entity) speed)
                 (:y entity))]
-    (if (or (< new-y 0) (<= (- window-height pac-size) new-y)) ;apply screen y boundaries
+    (if (or (< new-y 0) (<= (- window-height (:height entity)) new-y)) ;apply screen y boundaries
       (:y entity)
       new-y)))
 
@@ -103,8 +105,9 @@
 
 
              (let [background (texture "background.png")
+                   player-size 60
                    player (assoc (texture "pac.png")
-                            :x 40 :y 40 :width pac-size  :height pac-size :angle 0  :player? true :direction :right)
+                            :x 40 :y 40 :width player-size  :height player-size :angle 0  :player? true :direction :right :speed 15)
                    dots (gen-dots)]
                [background player dots]))
 
