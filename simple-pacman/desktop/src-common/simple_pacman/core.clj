@@ -13,17 +13,16 @@
     (key-pressed? :dpad-right) :right))
 
 ;|--------------- handle player position -----------------|
-(defn- get-new-position [direction entity speed]
+(defn- get-new-position [direction entity ]
   (case direction
-    :right (+ (:x entity) speed)
-    :left (- (:x entity) speed)))
+    :right (+ (:x entity) (:speed entity))
+    :left (- (:x entity) (:speed entity))))
 
 
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          speed 15
-          x (get-new-position direction entity speed)]
+          x (get-new-position direction entity )]
       (assoc entity :x x  :direction direction))
     entity))
 
@@ -39,7 +38,7 @@
              (let [background (texture "background.png")
                    player-size 60
                    player (assoc (texture "pac.png")
-                            :player? true :x 40 :y 40 :width player-size  :height player-size :angle 0  :direction :right)]
+                            :player? true :x 40 :y 40 :width player-size  :height player-size :angle 0  :direction :right :speed 15)]
                [background player ]))
 
            :on-render
