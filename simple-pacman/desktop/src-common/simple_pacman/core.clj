@@ -5,6 +5,12 @@
 
 (declare simple-pacman-game main-screen)
 
+;todo :
+;      1. Read about pure functions in the added file
+;      2. Edit the code so the functions would be PURE functions. e.g. It returns the same result if given the same arguments
+;      3. Edit the code so the player would be able to move to the LEFT
+
+
 (def window-height 506)
 (def window-width 900)
 (def pac-size 60)
@@ -13,14 +19,12 @@
 ;|-------------------- handle input --------------------------|
 (defn- get-direction []
   (cond
-    (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
 ;|--------------- handle player position -----------------|
 (defn- get-new-position [direction entity ]
   (case direction
-    :right (+ (:x entity) speed)
-    :left (- (:x entity) speed)))
+    :right (+ (:x entity) speed)))
 
 
 (defn- update-player-position [{:keys [player?] :as entity}]
