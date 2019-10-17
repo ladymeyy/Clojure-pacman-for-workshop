@@ -5,10 +5,6 @@
 
 (declare simple-pacman-game main-screen)
 
-(def window-height 506)
-(def window-width 900)
-(def pac-size 60)
-(def speed 15)
 
 ;|-------------------- handle input --------------------------|
 (defn- get-direction []
@@ -16,12 +12,11 @@
     (key-pressed? :dpad-left) :left
     (key-pressed? :dpad-right) :right))
 
-
 ;|--------------- handle player position -----------------|
 (defn- get-new-position [direction entity ]
   (case direction
-    :right (+ (:x entity) speed)
-    :left (- (:x entity) speed)))
+    :right (+ (:x entity) (:speed entity))
+    :left (- (:x entity) (:speed entity))))
 
 (defn- get-angle [direction]
   (case direction
@@ -46,9 +41,10 @@
 
 
              (let [background (texture "background.png")
+                   player-size 60
                    player (assoc (texture "pac.png")
-                            :player? true :x 40 :y 40 :width pac-size  :height pac-size :angle 0 :direction :right)]
-               [background player]))
+                            :player? true :x 40 :y 40 :width player-size  :height player-size :angle 0  :direction :right :speed 15)]
+               [background player ]))
 
            :on-render
            (fn [screen entities]
