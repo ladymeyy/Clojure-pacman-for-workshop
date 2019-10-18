@@ -5,21 +5,16 @@
 
 (declare simple-pacman-game main-screen)
 
-(def window-height 506)
-(def window-width 900)
-
-(def dot-size 20)                                           ; to do change to pac/3 size
-
 
 
 ;|-----------------  dots  ------------------|
 
-(defn- generate-dot [ x y ]
+(defn- generate-dot [ x y dot-size]
   "generate collectable dot"
   (assoc (texture "dot.png") :x x :y y :width dot-size :height dot-size :dot? true))
 
-(defn- gen-dots []
-  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y)))
+(defn- gen-dots [dot-size]
+  (for [x (range 100 800 40) y (range 80 450 80)] (generate-dot x y dot-size)))
 
 ;|-------------------- handle input --------------------------|
 
@@ -45,7 +40,7 @@
                 :right (+ (:x entity) speed)
                 :left (- (:x entity) speed)
                 (:x entity))]
-    (if (or (< new-x 0) (<= (- window-width (:width entity)) new-x)) ;apply screen x boundaries
+    (if (or (< new-x 0) (<= (- 900 (:width entity)) new-x)) ;apply screen x boundaries
       (:x entity)
       new-x)))
 
@@ -55,7 +50,7 @@
                 :up (+ (:y entity) speed)
                 :down (- (:y entity) speed)
                 (:y entity))]
-    (if (or (< new-y 0) (<= (- window-height (:height entity)) new-y)) ;apply screen y boundaries
+    (if (or (< new-y 0) (<= (- 506 (:height entity)) new-y)) ;apply screen y boundaries
       (:y entity)
       new-y)))
 
@@ -106,9 +101,10 @@
 
              (let [background (texture "background.png")
                    player-size 60
+                   dot-size (/ player-size 3)
                    player (assoc (texture "pac.png")
                             :x 40 :y 40 :width player-size  :height player-size :angle 0  :player? true :direction :right :speed 15)
-                   dots (gen-dots)]
+                   dots (gen-dots dot-size)]
                [background player dots]))
 
            :on-render
