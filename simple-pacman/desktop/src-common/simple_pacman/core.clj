@@ -29,7 +29,8 @@
 
 ;|--------------- handle player position -----------------|
 (defn- is-in-boundaries [boundary new-position entity]
-  (or (< new-position 0) (<= (- boundary (:width entity)) new-position)))
+  "calculate the boudaries of the screen here"
+  )
 
 (defn- get-new-position [direction entity ]
   (case direction
