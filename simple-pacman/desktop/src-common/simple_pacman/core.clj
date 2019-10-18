@@ -5,8 +5,8 @@
 
 (declare simple-pacman-game main-screen)
 
-;TODO add additional movement directions: up & down. (start by dividing get-new-position to 2 separate functions)
-;*** Bonus **** TODO add boundaries to the screen.  (The player won't be able to go outside the screen boundaries & disappear)
+
+; TODO add boundaries to the screen.  (The player won't be able to go outside the screen boundaries & disappear)
 
 
 ;|-----------------  dots  ------------------|
@@ -28,6 +28,9 @@
     (key-pressed? :dpad-right) :right))
 
 ;|--------------- handle player position -----------------|
+(defn- is-in-boundaries [boundary new-position entity]
+  (or (< new-position 0) (<= (- boundary (:width entity)) new-position)))
+
 (defn- get-new-position [direction entity ]
   (case direction
     :right (+ (:x entity) (:speed entity))
@@ -41,7 +44,8 @@
 (defn- update-player-position [{:keys [player?] :as entity}]
   (if player?
     (let [direction (get-direction)
-          x (get-new-position direction entity)
+          new-x (get-new-position direction entity)
+          x (if (is-in-boundaries 900 new-x entity) (:x entity) new-x) ;apply screen x boundaries
           angle (get-angle direction)]
       (assoc entity :x x :angle angle :direction direction))
     entity))
