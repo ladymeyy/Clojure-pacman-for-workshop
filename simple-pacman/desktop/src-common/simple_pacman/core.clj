@@ -5,8 +5,8 @@
 
 (declare simple-pacman-game main-screen)
 
-;TODO add additional movement directions: up & down.
-; TODO add boundaries to the screen.  (The player won't be able to go outside the screen boundaries & disappear)
+;TODO add additional movement directions: up & down. (start by dividing get-new-position to 2 separate functions)
+;*** Bonus **** TODO add boundaries to the screen.  (The player won't be able to go outside the screen boundaries & disappear)
 
 
 ;|-----------------  dots  ------------------|
